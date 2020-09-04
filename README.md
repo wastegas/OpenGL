@@ -1,4 +1,4 @@
-# OpenGL Basics
+## OpenGL Basics
 
 Learning some OpenGL to keep me busy during this quarentine period.
 
@@ -8,7 +8,7 @@ Requires the following development libraries:
 	- [GLFW](https://glfw.org)
 	- [GLEW](https://https://github.com/nigels-com/glew)
 
-To build:
+# To build:
 
 $ mkdir build
 $ cd build
