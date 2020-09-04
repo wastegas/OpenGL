@@ -16,10 +16,10 @@ find_package(PkgConfig REQUIRED)
 
 include_directories(${CMAKE_SOURCE_DIR}/common)
 
-add_executable(hello ${CMAKE_SOURCE_DIR}/hello/src/main.cpp 
+add_executable(hello ${CMAKE_SOURCE_DIR}/hello/main.cpp 
   ${CMAKE_SOURCE_DIR}/common/logging.cpp)
 
-add_executable(shader ${CMAKE_SOURCE_DIR}/shader/src/main.cpp 
+add_executable(shader ${CMAKE_SOURCE_DIR}/shader/main.cpp 
   ${CMAKE_SOURCE_DIR}/common/logging.cpp)
 
 set(LINK_LIBS ${OPENGL_gl_LIBRARY} ${GLEW_SHARED_LIBRARIES} GLEW glfw)
