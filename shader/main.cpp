@@ -189,6 +189,8 @@ static void print_all(GLuint programme) {
   _print_programme_info_log (programme);
 }
 
+
+/* validate shader */
 static bool is_valid (GLuint programme) {
   glValidateProgram (programme);
   int params = -1;
@@ -201,6 +203,31 @@ static bool is_valid (GLuint programme) {
   }
   return true;
 }
+
+/* load plain text shader to a character array */
+bool parse_file_into_str(const char* file_name, char* shader_str,
+			 int max_len) {
+  FILE* file = fopen(file_name, "r");
+  if(!file) {
+    gl_log_err("ERROR: opening file for reading: %s\n", file_name);
+    return false;
+  }
+
+  size_t cnt = fread(shader_str, 1, max_len - 1, file);
+  if ((int)cnt >= max_len -1) {
+    gl_log_err("WARNING: file %s too big - truncated.\n", file_name);
+  }
+  if (ferror(file)) {
+    gl_log_err("ERROR: reading shader file %s\n", file_name);
+    fclose(file);
+    return false;
+  }
+  // append \0 to end of string
+  shader_str[cnt] = 0;
+  fclose(file);
+  return true;
+}
+
 
 int main()
 {
@@ -264,19 +291,21 @@ int main()
   };
 
   GLuint vbo = 0; // our vertex buffer
+  char vertex_shader[1024 * 256];
   glGenBuffers (1, &vbo); // set as the current buffer
   glBindBuffer (GL_ARRAY_BUFFER, vbo);
   // copy our points into the currently bound buffer
   glBufferData (GL_ARRAY_BUFFER, sizeof (points), points, GL_STATIC_DRAW);
 
   GLuint vao = 0; // our mesh aka vertext array
+  char fragment_shader[1024 * 256];
   glGenVertexArrays (1, &vao); // turn vao into a mesh
   glBindVertexArray(vao); // make it current mesh
   glEnableVertexAttribArray(0);
   glBindBuffer(GL_ARRAY_BUFFER, vbo); // put our buffer into the mesh
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
 
-  //Shader programs
+  /*Shader programs
   const char* vertex_shader =
     "#version 400\n"
     "in vec3 vp;"
@@ -290,9 +319,15 @@ int main()
     "void main() {"
     "  frag_colour = vec4 (0.5, 0.0, 0.5, 1.0);"
     "}";
+  */
+  parse_file_into_str("test_vs.glsl", vertex_shader, 1024 * 256);
+  parse_file_into_str("test_fs.glsl", fragment_shader, 1024 * 256);
 
+  const GLchar* p;
+  
   GLuint vs = glCreateShader (GL_VERTEX_SHADER);
-  glShaderSource (vs, 1, &vertex_shader, NULL);
+  p = (const GLchar*)vertex_shader;
+  glShaderSource (vs, 1, &p, NULL);
   glCompileShader(vs);
 
   // check for compile errors
@@ -306,7 +341,8 @@ int main()
   }
   
   GLuint fs = glCreateShader (GL_FRAGMENT_SHADER);
-  glShaderSource (fs, 1, &fragment_shader, NULL);
+  p = (const GLchar*)fragment_shader;
+  glShaderSource (fs, 1, &p, NULL);
   glCompileShader(fs);
   params = -1;
   glGetShaderiv(vs, GL_COMPILE_STATUS, &params);
@@ -328,6 +364,15 @@ int main()
     _print_programme_info_log(shader_programme);
     return -1;
   }
+  print_all(shader_programme);
+  bool result = is_valid(shader_programme);
+  assert(result);
+
+  GLint colour_loc;
+  colour_loc = glGetUniformLocation(shader_programme, "inputColour");
+  assert(colour_loc > -1);
+  glUseProgram(shader_programme);
+  glUniform4f(colour_loc, 1.0f, 0.0f, 0.0f, 1.0f);
 
   // draw our triangle
   while(!glfwWindowShouldClose (window)) {
