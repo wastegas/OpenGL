@@ -9,9 +9,9 @@ Requires the following development libraries:
 	- [GLEW](https://https://github.com/nigels-com/glew)
 
 To build:
-`
-$mkdir build
-$cd build
-$cmake ..
-$make
-`
+
+$ mkdir build
+$ cd build
+$ cmake ..
+$ make
+
