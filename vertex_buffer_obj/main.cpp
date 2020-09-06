@@ -84,25 +84,37 @@ int main()
 		      0.5f, -0.5f, 0.0f, // bot right point
 		      -0.5f, -0.5f, 0.0f  // bot left point
   };
+  GLfloat colours[] = {
+		       1.0f, 0.0f, 0.0f,
+		       0.0f, 1.0f, 0.0f,
+		       0.0f, 0.0f, 1.0f
+  };
 
-  GLuint vbo = 0; // our vertex buffer
-  char vertex_shader[1024 * 256];
-  glGenBuffers (1, &vbo); // set as the current buffer
-  glBindBuffer (GL_ARRAY_BUFFER, vbo);
-  // copy our points into the currently bound buffer
+  GLuint points_vbo = 0; // our vertex buffer
+  glGenBuffers (1, &points_vbo); // set as the current buffer
+  glBindBuffer (GL_ARRAY_BUFFER, points_vbo);
   glBufferData (GL_ARRAY_BUFFER, sizeof (points), points, GL_STATIC_DRAW);
 
-  GLuint vao = 0; // our mesh aka vertext array
-  char fragment_shader[1024 * 256];
-  glGenVertexArrays (1, &vao); // turn vao into a mesh
-  glBindVertexArray(vao); // make it current mesh
-  glEnableVertexAttribArray(0);
-  glBindBuffer(GL_ARRAY_BUFFER, vbo); // put our buffer into the mesh
+  GLuint colours_vbo = 0;
+  glGenBuffers(1, &colours_vbo);
+  glBindBuffer(GL_ARRAY_BUFFER, colours_vbo);
+  glBufferData(GL_ARRAY_BUFFER, sizeof (colours), colours, GL_STATIC_DRAW);
+
+  GLuint vao = 0; 
+  glGenVertexArrays (1, &vao); 
+  glBindVertexArray(vao); 
+  glBindBuffer(GL_ARRAY_BUFFER, points_vbo); 
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+  glBindBuffer(GL_ARRAY_BUFFER, colours_vbo);
+  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, NULL);
 
+  glEnableVertexAttribArray(0); // points_vbo
+  glEnableVertexAttribArray(1); // colours_vbo
 
-  parse_file_into_str("test_vs.glsl", vertex_shader, 1024 * 256);
-  parse_file_into_str("test_fs.glsl", fragment_shader, 1024 * 256);
+  char vertex_shader[1024 * 256];
+  char fragment_shader[1024 * 256];  
+  parse_file_into_str("test2_vs.glsl", vertex_shader, 1024 * 256);
+  parse_file_into_str("test2_fs.glsl", fragment_shader, 1024 * 256);
 
   const GLchar* p;
   
@@ -131,39 +143,40 @@ int main()
     fprintf(stderr, "ERROR: GL shader index %i did not compile\n",
 	    fs);
     _print_shader_info_log(fs);
-    return -1;
+    return false;
   }
+  
   GLuint shader_programme = glCreateProgram();
   glAttachShader (shader_programme, fs);
   glAttachShader (shader_programme, vs);
+
+  // location binding code
+  glBindAttribLocation (shader_programme, 0, "vertex_position");
+  glBindAttribLocation (shader_programme, 1, "vertex_colour");
+  
   glLinkProgram (shader_programme);
+
   params = -1;
   glGetProgramiv(shader_programme, GL_LINK_STATUS, &params);
   if (GL_TRUE != params) {
     fprintf(stderr, "ERROR: could not link shader programm GL index %u\n",
 	    shader_programme);
     _print_programme_info_log(shader_programme);
-    return -1;
+    return false;
   }
-  print_all(shader_programme);
+  
   bool result = is_valid(shader_programme);
   assert(result);
 
-  GLint colour_loc;
-  colour_loc = glGetUniformLocation(shader_programme, "inputColour");
-  assert(colour_loc > -1);
-  glUseProgram(shader_programme);
-  glUniform4f(colour_loc, 1.0f, 0.0f, 0.0f, 1.0f);
 
   // draw our triangle
   while(!glfwWindowShouldClose (window)) {
-    _update_fps_counter(window);
+    //    _update_fps_counter(window);
       //wipe the drawing surface clear
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-      glViewport(0, 0, g_gl_width, g_gl_height);
+      //glViewport(0, 0, g_gl_width, g_gl_height);
       glUseProgram(shader_programme);
       glBindVertexArray(vao);
-      //draw points 0-3 from the currently bound VAO with current in-use shader
       glDrawArrays(GL_TRIANGLES, 0, 3);
       //update other events like input handling
       glfwPollEvents();
