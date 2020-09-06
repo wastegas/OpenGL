@@ -208,3 +208,7 @@ bool parse_file_into_str(const char* file_name, char* shader_str,
   fclose(file);
   return true;
 }
+
+bool start_gl() {
+  return true;
+}

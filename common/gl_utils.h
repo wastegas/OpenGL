@@ -8,7 +8,9 @@
 
 extern int g_gl_width;
 extern int g_gl_height;
+extern GLFWwindow* g_window;
 
+bool start_gl();
 void glfw_error_callback(int, const char*);
 void glfw_window_size_callback(GLFWwindow*, int, int);
 void log_gl_params();
