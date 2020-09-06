@@ -168,13 +168,16 @@ int main()
   bool result = is_valid(shader_programme);
   assert(result);
 
+  glEnable (GL_CULL_FACE); // cull face
+  glCullFace (GL_BACK); // cull back face
+  glFrontFace (GL_CW); // GL_CCW for counter clock-wise
 
   // draw our triangle
   while(!glfwWindowShouldClose (window)) {
     //    _update_fps_counter(window);
       //wipe the drawing surface clear
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-      //glViewport(0, 0, g_gl_width, g_gl_height);
+      glViewport(0, 0, g_gl_width, g_gl_height);
       glUseProgram(shader_programme);
       glBindVertexArray(vao);
       glDrawArrays(GL_TRIANGLES, 0, 3);
