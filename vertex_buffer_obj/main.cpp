@@ -7,6 +7,7 @@
 
 int g_gl_width = 640;
 int g_gl_height = 480;
+GLFWwindow* g_window = NULL;
 
 static void _update_fps_counter(GLFWwindow* window) {
   static double previous_seconds = glfwGetTime();
@@ -26,53 +27,11 @@ static void _update_fps_counter(GLFWwindow* window) {
 
 int main()
 {
+  
   assert(restart_gl_log());
-  // starg GL context and O/S window using GLFW helper library
-  gl_log("starting GLFW\n%s\n", glfwGetVersionString());
-  // register the error call-back function we wrote
-  glfwSetErrorCallback(glfw_error_callback);
-
-
+  restart_gl_log();
+  start_gl();
   
-  if (!glfwInit()) {
-    fprintf(stderr, "Error: could not start GLFW\n");
-    return -1;
-  }
-
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
-  glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-  glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-  // Anti-aliasing
-  glfwWindowHint(GLFW_SAMPLES, 4);
-
-  // Window resolution and full-screen
-  GLFWmonitor* mon = glfwGetPrimaryMonitor();
-  const GLFWvidmode* vmode = glfwGetVideoMode(mon);
-  
-  GLFWwindow* window = glfwCreateWindow(g_gl_width, g_gl_height,
-					"Extended GL Init",
-					NULL, NULL);
-  if(!window) {
-    fprintf(stderr, "Error: could not open window GLFW3\n");
-    glfwTerminate();
-    return 1;
-  }
-
-
-  glfwSetWindowSizeCallback(window, glfw_window_size_callback);
-  glfwMakeContextCurrent(window);
-  //log_gl_params();
-  
-  // start GLEW extension handler
-  glewExperimental = GL_TRUE;
-  glewInit();
-
-  // get version info
-  const GLubyte* renderer = glGetString (GL_RENDERER);
-  const GLubyte* version = glGetString(GL_VERSION);
-  printf("Renderer: %s\n", renderer);
-  printf("OpenGL version supported: %s\n", version);
 
   // tell GL to only draw onto a pixel if the shape is closer to the viewer
   glEnable (GL_DEPTH_TEST); // enable depth-testing
@@ -173,7 +132,7 @@ int main()
   glFrontFace (GL_CW); // GL_CCW for counter clock-wise
 
   // draw our triangle
-  while(!glfwWindowShouldClose (window)) {
+  while(!glfwWindowShouldClose (g_window)) {
     //    _update_fps_counter(window);
       //wipe the drawing surface clear
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -183,12 +142,12 @@ int main()
       glDrawArrays(GL_TRIANGLES, 0, 3);
       //update other events like input handling
       glfwPollEvents();
-      if (GLFW_PRESS == glfwGetKey(window, GLFW_KEY_ESCAPE))
+      if (GLFW_PRESS == glfwGetKey(g_window, GLFW_KEY_ESCAPE))
 	{
-	  glfwSetWindowShouldClose(window, 1);
+	  glfwSetWindowShouldClose(g_window, 1);
 	}
       //put the stuff we've been drawing onto the display
-      glfwSwapBuffers (window);
+      glfwSwapBuffers (g_window);
     }
   
   // close GL context and any other GLFW resources

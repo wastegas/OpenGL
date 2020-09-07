@@ -210,5 +210,60 @@ bool parse_file_into_str(const char* file_name, char* shader_str,
 }
 
 bool start_gl() {
+
+  // starg GL context and O/S window using GLFW helper library
+  gl_log("starting GLFW\n%s\n", glfwGetVersionString());
+  // register the error call-back function we wrote
+  glfwSetErrorCallback(glfw_error_callback);
+
+
+  
+  if (!glfwInit()) {
+    fprintf(stderr, "Error: could not start GLFW\n");
+    return -1;
+  }
+
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+  glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+  glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+  // Anti-aliasing
+  glfwWindowHint(GLFW_SAMPLES, 4);
+
+  /* Window resolution and full-screen
+  GLFWmonitor* mon = glfwGetPrimaryMonitor();
+  const GLFWvidmode* vmode = glfwGetVideoMode(mon);
+  
+  GLFWwindow* window = glfwCreateWindow(g_gl_width, g_gl_height,
+					"Extended GL Init",
+					NULL, NULL);
+  */
+
+  g_window = glfwCreateWindow(g_gl_width, g_gl_height,
+			      "Extended GL init",
+			      NULL, NULL);
+  
+  if(!g_window) {
+    fprintf(stderr, "Error: could not open window GLFW3\n");
+    glfwTerminate();
+    return 1;
+  }
+
+
+  glfwSetWindowSizeCallback(g_window, glfw_window_size_callback);
+  glfwMakeContextCurrent(g_window);
+  //log_gl_params();
+  
+  // start GLEW extension handler
+  glewExperimental = GL_TRUE;
+  glewInit();
+
+  // get version info
+  const GLubyte* renderer = glGetString (GL_RENDERER);
+  const GLubyte* version = glGetString(GL_VERSION);
+  printf("Renderer: %s\n", renderer);
+  printf("OpenGL version supported: %s\n", version);
+  gl_log("renderer: %s\version: %s\n", renderer, version);
+  
   return true;
 }
