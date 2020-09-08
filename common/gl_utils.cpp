@@ -209,6 +209,22 @@ bool parse_file_into_str(const char* file_name, char* shader_str,
   return true;
 }
 
+void _update_fps_counter(GLFWwindow* window) {
+  static double previous_seconds = glfwGetTime();
+  static int frame_count;
+  double current_seconds = glfwGetTime();
+  double elapse_seconds = current_seconds - previous_seconds;
+  if (elapse_seconds > 0.25) {
+    previous_seconds = current_seconds;
+    double fps = (double)frame_count / elapse_seconds;
+    char tmp[128];
+    sprintf(tmp, "opengl @ fps: %.2f", fps);
+    glfwSetWindowTitle(window, tmp);
+    frame_count = 0;
+  }
+  frame_count++;
+}
+
 bool start_gl() {
 
   // starg GL context and O/S window using GLFW helper library

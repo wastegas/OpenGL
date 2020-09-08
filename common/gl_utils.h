@@ -13,6 +13,7 @@ extern GLFWwindow* g_window;
 bool start_gl();
 void glfw_error_callback(int, const char*);
 void glfw_window_size_callback(GLFWwindow*, int, int);
+void _update_fps_counter(GLFWwindow*);
 void log_gl_params();
 const char* GL_type_to_string(GLenum);
 void _print_shader_info_log(GLuint);
