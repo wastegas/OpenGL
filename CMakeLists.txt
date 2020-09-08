@@ -26,10 +26,15 @@ add_executable(vbo ${CMAKE_SOURCE_DIR}/vertex_buffer_obj/main.cpp
   ${CMAKE_SOURCE_DIR}/common/logging.cpp
   ${CMAKE_SOURCE_DIR}/common/gl_utils.cpp)
 
+add_executable(mat ${CMAKE_SOURCE_DIR}/mat_trans/main.cpp 
+  ${CMAKE_SOURCE_DIR}/common/logging.cpp
+  ${CMAKE_SOURCE_DIR}/common/gl_utils.cpp)
+
 set(LINK_LIBS ${OPENGL_gl_LIBRARY} ${GLEW_SHARED_LIBRARIES} GLEW glfw)
 target_link_libraries(hello ${LINK_LIBS})
 target_link_libraries(shader ${LINK_LIBS})
 target_link_libraries(vbo ${LINK_LIBS})
+target_link_libraries(mat ${LINK_LIBS})
 
 
 			  
