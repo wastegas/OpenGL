@@ -279,7 +279,7 @@ bool start_gl() {
   const GLubyte* version = glGetString(GL_VERSION);
   printf("Renderer: %s\n", renderer);
   printf("OpenGL version supported: %s\n", version);
-  gl_log("renderer: %s\version: %s\n", renderer, version);
+  gl_log("renderer: %s version: %s\n", renderer, version);
   
   return true;
 }
