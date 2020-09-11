@@ -62,8 +62,8 @@ int main()
 
   char vertex_shader[1024 * 256];
   char fragment_shader[1024 * 256];
-  parse_file_into_str("test4_vs.glsl", vertex_shader, 1024 * 256);
-  parse_file_into_str("test4_fs.glsl", fragment_shader, 1024 * 256);
+  parse_file_into_str("test5_vs.glsl", vertex_shader, 1024 * 256);
+  parse_file_into_str("test5_fs.glsl", fragment_shader, 1024 * 256);
   
   
   const GLchar* p = NULL;
