@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <cassert>
 #include <math.h>
+#include "math_funcs.h"
 #include "gl_utils.h"
 #include "logging.h"
 
@@ -125,9 +126,40 @@ int main()
   };
 
 
-  int matrix_location = glGetUniformLocation(shader_programme, "matrix");
+  int view_mat_location = glGetUniformLocation(shader_programme, "view");
   glUseProgram(shader_programme);
-  glUniformMatrix4fv(matrix_location, 1, GL_FALSE, matrix);
+  glUniformMatrix4fv(view_mat_location, 1, GL_FALSE, view_mat.m);
+  int proj_mat_location = glGetUniformLocation(shader_programme, "proj");
+  glUseProgram(shader_programme);
+  glUniformMatrix4fv(proj_mat_location, 1, GL_FALSE, proj_mat);
+
+  // virtual camera section
+  float cam_pos[] = {0.0f, 0.0f, 2.0f};
+  float cam_yaw = 0.0f; // y-rotation degrees
+  mat4 T = translate(identity_mat4(), vec3(-cam_pos[0], -cam_pos[1],
+					 -cam_pos[2]));
+  mat4 R = rotaty_y_deg(identity_mat4(), -cam_yaw);
+  mat4 view_mat = R * T;
+
+  // input variables
+  float near = 0.1f; // clipping plane
+  float far = 100.0f; // clipping plane
+  float fov = 67.0f * ONE_DEG_IN_RAD; // convert 67 deg to rad
+  float aspect = (float)width / (float)height; // aspect ratio
+  // matrix components
+  float range = tan (fov * 0.5f) * near;
+  float Sx = (2.0f * near) / (range * aspect + range * aspect);
+  float Sy = near / range;
+  float Sz = -(far + near) / (far - near);
+  float Pz = -(2.0f * far * near) / (far - near);
+
+  float proj_mat[] = {
+		      Sx, 0.0f, 0.0f, 0.0f,
+		      0.0f, Sy, 0.0f, 0.0f,
+		      0.0f, 0.0f, Sz, -1.0f,
+		      0.0f, 0.0f, Pz, 0.0f
+  };
+  
 
   
   glEnable (GL_CULL_FACE); // cull face
@@ -136,6 +168,9 @@ int main()
 
   float speed = 1.0f; // move at 1 unit per sec
   float last_position = 0.0f;
+  // camera speed
+  float cam_speed = 1.0f; // 1 unit per second
+  float cam_yaw_speed = 10.0f; // 10 degrees per second
 
   // draw our triangle
   while(!glfwWindowShouldClose (g_window)) {
@@ -168,6 +203,51 @@ int main()
     glDrawArrays(GL_TRIANGLES, 0, 3);
     //update other events like input handling
     glfwPollEvents();
+    bool cam_moved = false;
+    if ( glfwGetKey( g_window, GLFW_KEY_A ) ) {
+      cam_pos[0] -= cam_speed * elapsed_seconds;
+      cam_moved = true;
+    }
+    if ( glfwGetKey( g_window, GLFW_KEY_D ) ) {
+      cam_pos[0] += cam_speed * elapsed_seconds;
+      cam_moved = true;
+    }
+    if ( glfwGetKey( g_window, GLFW_KEY_PAGE_UP ) ) {
+      cam_pos[1] += cam_speed * elapsed_seconds;
+      cam_moved = true;
+    }
+    if ( glfwGetKey( g_window, GLFW_KEY_PAGE_DOWN ) ) {
+      cam_pos[1] -= cam_speed * elapsed_seconds;
+      cam_moved = true;
+    }
+    if ( glfwGetKey( g_window, GLFW_KEY_W ) ) {
+      cam_pos[2] -= cam_speed * elapsed_seconds;
+      cam_moved = true;
+    }
+    if ( glfwGetKey( g_window, GLFW_KEY_S ) ) {
+      cam_pos[2] += cam_speed * elapsed_seconds;
+      cam_moved = true;
+    }
+    if ( glfwGetKey( g_window, GLFW_KEY_LEFT ) ) {
+      cam_yaw += cam_yaw_speed * elapsed_seconds;
+      cam_moved = true;
+    }
+    if ( glfwGetKey( g_window, GLFW_KEY_RIGHT ) ) {
+      cam_yaw -= cam_yaw_speed * elapsed_seconds;
+      cam_moved = true;
+    }
+
+    if ( cam_moved ) {
+      mat4 T = translate( identity_mat4(),
+			  vec3( -cam_pos[0],
+				-cam_pos[1],
+				-cam_pos[2] ) ); // cam translation
+      mat4 R = rotate_y_deg( identity_mat4(),
+			     -cam_yaw );     //
+      mat4 view_mat = R * T;
+      glUniformMatrix4fv( view_mat_location, 1, GL_FALSE, view_mat.m );
+    }
+
     if (GLFW_PRESS == glfwGetKey(g_window, GLFW_KEY_ESCAPE))
       {
 	glfwSetWindowShouldClose(g_window, 1);
