@@ -126,6 +126,15 @@ int main()
   };
 
 
+
+  // virtual camera section
+  float cam_pos[] = {0.0f, 0.0f, 2.0f};
+  float cam_yaw = 0.0f; // y-rotation degrees
+  mat4 T = translate(identity_mat4(), vec3(-cam_pos[0], -cam_pos[1],
+					 -cam_pos[2]));
+  mat4 R = rotate_y_deg(identity_mat4(), -cam_yaw);
+  mat4 view_mat = R * T;
+
   int view_mat_location = glGetUniformLocation(shader_programme, "view");
   glUseProgram(shader_programme);
   glUniformMatrix4fv(view_mat_location, 1, GL_FALSE, view_mat.m);
@@ -133,19 +142,11 @@ int main()
   glUseProgram(shader_programme);
   glUniformMatrix4fv(proj_mat_location, 1, GL_FALSE, proj_mat);
 
-  // virtual camera section
-  float cam_pos[] = {0.0f, 0.0f, 2.0f};
-  float cam_yaw = 0.0f; // y-rotation degrees
-  mat4 T = translate(identity_mat4(), vec3(-cam_pos[0], -cam_pos[1],
-					 -cam_pos[2]));
-  mat4 R = rotaty_y_deg(identity_mat4(), -cam_yaw);
-  mat4 view_mat = R * T;
-
   // input variables
   float near = 0.1f; // clipping plane
   float far = 100.0f; // clipping plane
   float fov = 67.0f * ONE_DEG_IN_RAD; // convert 67 deg to rad
-  float aspect = (float)width / (float)height; // aspect ratio
+  float aspect = (float)g_gl_width / (float)g_gl_height; // aspect ratio
   // matrix components
   float range = tan (fov * 0.5f) * near;
   float Sx = (2.0f * near) / (range * aspect + range * aspect);
@@ -177,7 +178,7 @@ int main()
     // add a timer for amimation
     static double previous_seconds = glfwGetTime();
     double current_seconds         = glfwGetTime();
-    double elapse_seconds          = current_seconds - previous_seconds;
+    double elapsed_seconds          = current_seconds - previous_seconds;
     previous_seconds               = current_seconds;
     
     _update_fps_counter(g_window);
@@ -193,7 +194,7 @@ int main()
     
     
     // update the matrix
-    matrix[12] = elapse_seconds * speed + last_position;
+    matrix[12] = elapsed_seconds * speed + last_position;
     last_position = matrix[12];
     glUseProgram(shader_programme);
     glUniformMatrix4fv(matrix_location, 1, GL_FALSE, matrix);
