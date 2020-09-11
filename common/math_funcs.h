@@ -122,7 +122,7 @@ mat4 inverse(const mat4& mm);
 mat4 transpose(const mat4& mm);
 
 // affine functions
-mat4 transate(const mat4& m, const vec3& v);
+mat4 translate(const mat4& m, const vec3& v);
 mat4 rotate_x_deg(const mat4& m, float deg);
 mat4 rotate_y_deg(const mat4& m, float deg);
 mat4 rotate_z_deg(const mat4& m, float deg);
