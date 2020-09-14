@@ -118,31 +118,7 @@ int main()
   bool result = is_valid(shader_programme);
   assert(result);
 
-  float matrix[] = {
-		    1.0f, 0.0f, 0.0f, 0.0f, // first column
-		    0.0f, 1.0f, 0.0f, 0.0f, // second column
-		    0.0f, 0.0f, 1.0f, 0.0f, // third column
-		    0.5f, 0.0f, 0.0f, 1.0f  // fourth column
-  };
-
-
-
-  // virtual camera section
-  float cam_pos[] = {0.0f, 0.0f, 2.0f};
-  float cam_yaw = 0.0f; // y-rotation degrees
-  mat4 T = translate(identity_mat4(), vec3(-cam_pos[0], -cam_pos[1],
-					 -cam_pos[2]));
-  mat4 R = rotate_y_deg(identity_mat4(), -cam_yaw);
-  mat4 view_mat = R * T;
-
-  int view_mat_location = glGetUniformLocation(shader_programme, "view");
-  glUseProgram(shader_programme);
-  glUniformMatrix4fv(view_mat_location, 1, GL_FALSE, view_mat.m);
-  int proj_mat_location = glGetUniformLocation(shader_programme, "proj");
-  glUseProgram(shader_programme);
-  glUniformMatrix4fv(proj_mat_location, 1, GL_FALSE, proj_mat);
-
-  // input variables
+    // input variables
   float near = 0.1f; // clipping plane
   float far = 100.0f; // clipping plane
   float fov = 67.0f * ONE_DEG_IN_RAD; // convert 67 deg to rad
@@ -154,12 +130,39 @@ int main()
   float Sz = -(far + near) / (far - near);
   float Pz = -(2.0f * far * near) / (far - near);
 
+
+
+  float matrix[] = {
+		    1.0f, 0.0f, 0.0f, 0.0f, // first column
+		    0.0f, 1.0f, 0.0f, 0.0f, // second column
+		    0.0f, 0.0f, 1.0f, 0.0f, // third column
+		    0.5f, 0.0f, 0.0f, 1.0f  // fourth column
+  };
+
   float proj_mat[] = {
 		      Sx, 0.0f, 0.0f, 0.0f,
 		      0.0f, Sy, 0.0f, 0.0f,
 		      0.0f, 0.0f, Sz, -1.0f,
 		      0.0f, 0.0f, Pz, 0.0f
   };
+
+
+  // virtual camera section
+  float cam_pos[] = {0.0f, 0.0f, 2.0f};
+  float cam_yaw = 0.0f; // y-rotation degrees
+  mat4 T = translate(identity_mat4(), vec3(-cam_pos[0], -cam_pos[1],
+					 -cam_pos[2]));
+  mat4 R = rotate_y_deg(identity_mat4(), -cam_yaw);
+  mat4 view_mat = R * T;
+
+
+  int view_mat_location = glGetUniformLocation(shader_programme, "view");
+  glUseProgram(shader_programme);
+  glUniformMatrix4fv(view_mat_location, 1, GL_FALSE, view_mat.m);
+  int proj_mat_location = glGetUniformLocation(shader_programme, "proj");
+  glUseProgram(shader_programme);
+  glUniformMatrix4fv(proj_mat_location, 1, GL_FALSE, proj_mat);
+
   
 
   
@@ -187,17 +190,8 @@ int main()
     glViewport(0, 0, g_gl_width, g_gl_height);
 
 
-    // reverse direction when goint to far left or right
-    if (fabs(last_position) > 1.0f) {
-      speed = -speed;
-    }
-    
-    
-    // update the matrix
-    matrix[12] = elapsed_seconds * speed + last_position;
-    last_position = matrix[12];
     glUseProgram(shader_programme);
-    glUniformMatrix4fv(matrix_location, 1, GL_FALSE, matrix);
+    
 
     glBindVertexArray(vao);
     //draw points 0-3 from the currently bound VAO with current in-use shader
