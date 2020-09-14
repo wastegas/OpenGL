@@ -45,6 +45,7 @@ struct vec3 {
   vec3 operator/(float rhs);
   // support /=
   vec3& operator/=(const vec3& rhs);
+  vec3& operator=(const vec3& rhs);
 
   // vector data
   float v[3];
@@ -91,7 +92,7 @@ struct mat4 {
 struct versor {
   versor();
   versor operator/(float rhs);
-  versor operator+(float rhs);
+  versor operator*(float rhs);
   versor operator*(const versor& rhs);
   versor operator+(const versor& rhs);
   float q[4];
@@ -107,7 +108,7 @@ void print(const mat4& m);
 float length(const vec3& v);
 float length2(const vec3& v);
 vec3 normalize(const vec3& v);
-float cross(const vec3& a, const vec3& b);
+vec3 cross(const vec3& a, const vec3& b);
 float get_squared_dist(vec3 fro, vec3 to);
 float get_direction_to_heading(vec3 d);
 vec3 heading_to_direction(float degrees);

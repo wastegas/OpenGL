@@ -34,13 +34,13 @@ vec3::vec3(const vec4& vv) {
 vec4::vec4() {}
 
 vec4::vec4(float x, float y, float z, float w) {
-  v[0] = float x;
-  v[1] = float y;
-  v[2] = float z;
-  v[3] = float w;
+  v[0] =  x;
+  v[1] =  y;
+  v[2] =  z;
+  v[3] =  w;
 }
 
-vec4::vec4(const vec2& vv, float z, float w); {
+vec4::vec4(const vec2& vv, float z, float w) {
   v[0] = vv.v[0];
   v[1] = vv.v[1];
   v[2] = z;
@@ -106,7 +106,7 @@ void print(const vec3& v) {
 }
 
 void print(const vec4& v) {
-  printf("[%.2f, %.2f, %.2f]\n", v.v[0], v.v[1], v.v[2], v.v[3]);
+  printf("[%.2f, %.2f, %.2f, %.2f]\n", v.v[0], v.v[1], v.v[2], v.v[3]);
 }
 
 void print(const mat3& m) {
@@ -131,7 +131,7 @@ float length(const vec3& v) {
 }
 
 // squared length
-float length2(const ve3& v) {
+float length2(const vec3& v) {
   return v.v[0] * v.v[0] + v.v[1] * v.v[1] + v.v[2] * v.v[2];
 }
 
@@ -155,10 +155,10 @@ vec3 vec3::operator+(const vec3& rhs) {
   return vc;
 }
 
-vec3 vec3::operator+=(const vec3& rhs) {
-  vc.v[0] += rhs.v[0];
-  vc.v[1] += rhs.v[1];
-  vc.v[2] += rhs.v[2];
+vec3& vec3::operator+=(const vec3& rhs) {
+  v[0] += rhs.v[0];
+  v[1] += rhs.v[1];
+  v[2] += rhs.v[2];
   return *this; // return self
 }
 
@@ -170,10 +170,10 @@ vec3 vec3::operator-(const vec3& rhs) {
   return vc;
 }
 
-vec3 vec3::operator-=(const vec3& rhs) {
-  vc.v[0] += rhs.v[0];
-  vc.v[1] += rhs.v[1];
-  vc.v[2] += rhs.v[2];
+vec3& vec3::operator-=(const vec3& rhs) {
+  v[0] += rhs.v[0];
+  v[1] += rhs.v[1];
+  v[2] += rhs.v[2];
   return *this;
 }
 
@@ -209,12 +209,11 @@ vec3 vec3::operator/(float rhs) {
   return vc;
 }
 
-vec3 vec3::operator*=(float rhs) {
-  vec3 vc;
-  vc.v[0] = v[0] * rhs;
-  vc.v[1] = v[1] * rhs;
-  vc.v[2] = v[2] * rhs;
-  return vc;
+vec3& vec3::operator*=(float rhs) {
+  v[0] = v[0] * rhs;
+  v[1] = v[1] * rhs;
+  v[2] = v[2] * rhs;
+  return *this;
 }
 
 vec3& vec3::operator=(const vec3& rhs) {
@@ -228,7 +227,7 @@ float dot(const vec3& a, const vec3& b) {
   return a.v[0] * b.v[0] + a.v[1] * b.v[1] + a.v[2] * b.v[2];
 }
 
-vec3 cross(const vec3& a, const ve3& b) {
+vec3 cross(const vec3& a, const vec3& b) {
   float x = a.v[1] * b.v[2] - a.v[2] * b.v[1];
   float y = a.v[2] * b.v[0] - a.v[0] * b.v[2];
   float z = a.v[0] * b.v[1] - a.v[1] * b.v[0];
@@ -244,7 +243,7 @@ float get_squared_dist(vec3 from, vec3 to) {
 
 /* convert un-normalized diretion to heading in degrees */
 float direction_to_heading(vec3 d) {
-  return atan2( -d.v[0], -d.v[2]) * ONE_RAD_IN DEG;
+  return atan2( -d.v[0], -d.v[2]) * ONE_RAD_IN_DEG;
 }
 
 vec3 heading_to_direction(float degrees) {
@@ -529,11 +528,11 @@ mat4 look_at( const vec3& cam_pos, vec3 targ_pos, const vec3& up ) {
   // distance vector
   vec3 d = targ_pos - cam_pos;
   // forward vector
-  vec3 f = normalise( d );
+  vec3 f = normalize( d );
   // right vector
-  vec3 r = normalise( cross( f, up ) );
+  vec3 r = normalize( cross( f, up ) );
   // real up vector
-  vec3 u    = normalise( cross( r, f ) );
+  vec3 u    = normalize( cross( r, f ) );
   mat4 ori  = identity_mat4();
   ori.m[0]  = r.v[0];
   ori.m[4]  = r.v[1];
@@ -594,7 +593,7 @@ versor versor::operator*( const versor& rhs ) {
   result.q[2] = rhs.q[0] * q[2] + rhs.q[1] * q[3] + rhs.q[2] * q[0] - rhs.q[3] * q[1];
   result.q[3] = rhs.q[0] * q[3] - rhs.q[1] * q[2] + rhs.q[2] * q[1] + rhs.q[3] * q[0];
   // re-normalise in case of mangling
-  return normalise( result );
+  return normalize( result );
 }
 
 versor versor::operator+( const versor& rhs ) {
@@ -604,7 +603,7 @@ versor versor::operator+( const versor& rhs ) {
   result.q[2] = rhs.q[2] + q[2];
   result.q[3] = rhs.q[3] + q[3];
   // re-normalise in case of mangling
-  return normalise( result );
+  return normalize( result );
 }
 
 versor quat_from_axis_rad( float radians, float x, float y, float z ) {
@@ -627,7 +626,7 @@ mat4 quat_to_mat4( const versor& q ) {
 	       2.0f * y * z + 2.0f * w * x, 0.0f, 2.0f * x * z + 2.0f * w * y, 2.0f * y * z - 2.0f * w * x, 1.0f - 2.0f * x * x - 2.0f * y * y, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f );
 }
 
-versor normalise( versor& q ) {
+versor normalize( versor& q ) {
   // norm(q) = q / magnitude (q)
   // magnitude (q) = sqrt (w*w + x*x...)
   // only compute sqrt if interior sum != 1.0
