@@ -39,14 +39,14 @@ int main()
   GLuint points_vbo = 0; // our vertex buffer
   glGenBuffers (1, &points_vbo); // set as the current buffer
   glBindBuffer (GL_ARRAY_BUFFER, points_vbo);
-  // copy our points into the currently bound buffer
-  glBufferData (GL_ARRAY_BUFFER, sizeof (points), points, GL_STATIC_DRAW);
+  glBufferData (GL_ARRAY_BUFFER, 9 * sizeof (GLfloat),
+		points, GL_STATIC_DRAW);
 
   GLuint colours_vbo = 0; // our vertex buffer
   glGenBuffers (1, &colours_vbo); // set as the current buffer
   glBindBuffer (GL_ARRAY_BUFFER, colours_vbo);
-  // copy our points into the currently bound buffer
-  glBufferData (GL_ARRAY_BUFFER, sizeof (points), colours, GL_STATIC_DRAW);
+  glBufferData (GL_ARRAY_BUFFER, 9 * sizeof (GLfloat),
+		colours, GL_STATIC_DRAW);
 
   
   GLuint vao = 0; // our mesh aka vertext array
@@ -87,7 +87,8 @@ int main()
   p = (const GLchar*)fragment_shader;
   glShaderSource (fs, 1, &p, NULL);
   glCompileShader(fs);
-  params = -1;
+
+  
   glGetShaderiv(vs, GL_COMPILE_STATUS, &params);
   if (GL_TRUE != params) {
     fprintf(stderr, "ERROR: GL shader index %i did not compile\n",
@@ -99,14 +100,8 @@ int main()
   GLuint shader_programme = glCreateProgram();
   glAttachShader (shader_programme, fs);
   glAttachShader (shader_programme, vs);
-
-  // location binding code
-  glBindAttribLocation (shader_programme, 0, "vertex_position");
-  glBindAttribLocation (shader_programme, 1, "vertex_colour");
-  
   glLinkProgram (shader_programme);
 
-  params = -1;
   glGetProgramiv(shader_programme, GL_LINK_STATUS, &params);
   if (GL_TRUE != params) {
     fprintf(stderr, "ERROR: could not link shader programm GL index %u\n",
@@ -124,20 +119,21 @@ int main()
   float fov = 67.0f * ONE_DEG_IN_RAD; // convert 67 deg to rad
   float aspect = (float)g_gl_width / (float)g_gl_height; // aspect ratio
   // matrix components
-  float range = tan (fov * 0.5f) * near;
-  float Sx = (2.0f * near) / (range * aspect + range * aspect);
-  float Sy = near / range;
+  float inverse_range = 1.0f/tan (fov * 0.5f);
+  float Sx = inverse_range / aspect;
+  float Sy = inverse_range;
   float Sz = -(far + near) / (far - near);
   float Pz = -(2.0f * far * near) / (far - near);
 
 
-
+  /*
   float matrix[] = {
 		    1.0f, 0.0f, 0.0f, 0.0f, // first column
 		    0.0f, 1.0f, 0.0f, 0.0f, // second column
 		    0.0f, 0.0f, 1.0f, 0.0f, // third column
 		    0.5f, 0.0f, 0.0f, 1.0f  // fourth column
   };
+  */
 
   float proj_mat[] = {
 		      Sx, 0.0f, 0.0f, 0.0f,
@@ -150,22 +146,21 @@ int main()
   // virtual camera section
   float cam_pos[] = {0.0f, 0.0f, 2.0f};
   float cam_yaw = 0.0f; // y-rotation degrees
+  float cam_speed = 1.0f; // 1 unit per second
+  float cam_yaw_speed = 10.0f; // 10 degrees per second
+
   mat4 T = translate(identity_mat4(), vec3(-cam_pos[0], -cam_pos[1],
 					 -cam_pos[2]));
   mat4 R = rotate_y_deg(identity_mat4(), -cam_yaw);
   mat4 view_mat = R * T;
 
 
-  int view_mat_location = glGetUniformLocation(shader_programme, "view");
+  GLint view_mat_location = glGetUniformLocation(shader_programme, "view");
+  GLint proj_mat_location = glGetUniformLocation(shader_programme, "proj");
   glUseProgram(shader_programme);
   glUniformMatrix4fv(view_mat_location, 1, GL_FALSE, view_mat.m);
-  int proj_mat_location = glGetUniformLocation(shader_programme, "proj");
-  glUseProgram(shader_programme);
   glUniformMatrix4fv(proj_mat_location, 1, GL_FALSE, proj_mat);
 
-  
-
-  
   glEnable (GL_CULL_FACE); // cull face
   glCullFace (GL_BACK); // cull back face
   glFrontFace (GL_CW); // GL_CCW for counter clock-wise
@@ -173,8 +168,6 @@ int main()
   float speed = 1.0f; // move at 1 unit per sec
   float last_position = 0.0f;
   // camera speed
-  float cam_speed = 1.0f; // 1 unit per second
-  float cam_yaw_speed = 10.0f; // 10 degrees per second
 
   // draw our triangle
   while(!glfwWindowShouldClose (g_window)) {
