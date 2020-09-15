@@ -2,6 +2,7 @@
 #include <GLFW/glfw3.h>
 #include <stdio.h>
 #include <cassert>
+#define _USE_MATH_DEFINES
 #include <math.h>
 #include "math_funcs.h"
 #include "gl_utils.h"
@@ -14,16 +15,9 @@ GLFWwindow* g_window;
 int main()
 {
   assert(restart_gl_log());
-  // starg GL context and O/S window using GLFW helper library
   gl_log("starting GLFW\n%s\n", glfwGetVersionString());
-  // register the error call-back function we wrote
   start_gl();
 
-  // tell GL to only draw onto a pixel if the shape is closer to the viewer
-  glEnable (GL_DEPTH_TEST); // enable depth-testing
-  glDepthFunc(GL_LESS); // depth-testing interprets a smaller value as "closer"
-
-  /* other stuff goes here */
   GLfloat points[] = {
 		      0.0f, 0.5f, 0.0f, // top point
 		      0.5f, -0.5f, 0.0f, // bot right point
@@ -126,16 +120,7 @@ int main()
   float Pz = -(2.0f * far * near) / (far - near);
 
 
-  /*
-  float matrix[] = {
-		    1.0f, 0.0f, 0.0f, 0.0f, // first column
-		    0.0f, 1.0f, 0.0f, 0.0f, // second column
-		    0.0f, 0.0f, 1.0f, 0.0f, // third column
-		    0.5f, 0.0f, 0.0f, 1.0f  // fourth column
-  };
-  */
-
-  float proj_mat[] = {
+  GLfloat proj_mat[] = {
 		      Sx, 0.0f, 0.0f, 0.0f,
 		      0.0f, Sy, 0.0f, 0.0f,
 		      0.0f, 0.0f, Sz, -1.0f,
@@ -144,7 +129,7 @@ int main()
 
 
   // virtual camera section
-  float cam_pos[] = {0.0f, 0.0f, 2.0f};
+  float cam_pos[] = {0.0f, 0.0f, 1.0f};
   float cam_yaw = 0.0f; // y-rotation degrees
   float cam_speed = 1.0f; // 1 unit per second
   float cam_yaw_speed = 10.0f; // 10 degrees per second
@@ -164,10 +149,6 @@ int main()
   glEnable (GL_CULL_FACE); // cull face
   glCullFace (GL_BACK); // cull back face
   glFrontFace (GL_CW); // GL_CCW for counter clock-wise
-
-  float speed = 1.0f; // move at 1 unit per sec
-  float last_position = 0.0f;
-  // camera speed
 
   // draw our triangle
   while(!glfwWindowShouldClose (g_window)) {
