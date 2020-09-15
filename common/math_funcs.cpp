@@ -253,11 +253,15 @@ vec3 heading_to_direction(float degrees) {
 
 /* matrix functions */
 mat3 zero_mat3() {
-  return mat3(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+  return mat3(0.0f, 0.0f, 0.0f,
+	      0.0f, 0.0f, 0.0f,
+	      0.0f, 0.0f, 0.0f);
 }
 
 mat3 identity_mate() {
-  return mat3(1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
+  return mat3(1.0f, 0.0f, 0.0f,
+	      0.0f, 1.0f, 0.0f,
+	      0.0f, 0.0f, 1.0f);
 }
 
 mat4 zero_mat4() {
