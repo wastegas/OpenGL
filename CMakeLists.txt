@@ -35,6 +35,11 @@ add_executable(cam ${CMAKE_SOURCE_DIR}/virt_cam/main.cpp
   ${CMAKE_SOURCE_DIR}/common/math_funcs.cpp
   ${CMAKE_SOURCE_DIR}/common/gl_utils.cpp)
 
+add_executable(quat ${CMAKE_SOURCE_DIR}/quaternion/main.cpp 
+  ${CMAKE_SOURCE_DIR}/common/logging.cpp
+  ${CMAKE_SOURCE_DIR}/common/math_funcs.cpp
+  ${CMAKE_SOURCE_DIR}/common/gl_utils.cpp)
+
 
 set(LINK_LIBS ${OPENGL_gl_LIBRARY} ${GLEW_SHARED_LIBRARIES} GLEW glfw)
 target_link_libraries(hello ${LINK_LIBS})
@@ -42,5 +47,5 @@ target_link_libraries(shader ${LINK_LIBS})
 target_link_libraries(vbo ${LINK_LIBS})
 target_link_libraries(mat ${LINK_LIBS})
 target_link_libraries(cam ${LINK_LIBS})
-
+target_link_libraries(quat ${LINK_LIBS})
 			  
