@@ -37,12 +37,12 @@ int main()
   GLuint points_vbo = 0; // our vertex buffer
   glGenBuffers (1, &points_vbo); // set as the current buffer
   glBindBuffer (GL_ARRAY_BUFFER, points_vbo);
-  glBufferData (GL_ARRAY_BUFFER, sizeof (points), points, GL_STATIC_DRAW);
+  glBufferData (GL_ARRAY_BUFFER, 9 * sizeof (GLfloat), points, GL_STATIC_DRAW);
 
   GLuint colours_vbo = 0;
   glGenBuffers(1, &colours_vbo);
   glBindBuffer(GL_ARRAY_BUFFER, colours_vbo);
-  glBufferData(GL_ARRAY_BUFFER, sizeof (colours), colours, GL_STATIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, 9 * sizeof (GLfloat), colours, GL_STATIC_DRAW);
 
   GLuint vao = 0; 
   glGenVertexArrays (1, &vao); 
